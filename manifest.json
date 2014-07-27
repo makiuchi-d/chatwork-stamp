@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "name": "ChatWork Stamp",
+  "version": "0.1",
+  "description": "ChatWorkにスタンプを追加するよ",
+  "icons": {
+    "128": "icon_128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://kcw.kddi.ne.jp/*"],
+      "js": ["extension.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": ["script.js","style.css"]
+}

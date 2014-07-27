@@ -1,0 +1,76 @@
+.stampAddBtn {
+	vertical-align: top;
+	margin-left: 5px !important;
+}
+
+#stampTool .stampButton img { 
+	margin: 2px !important;
+	max-width: 150px;
+	max-height: 100px;
+}
+
+#stampTool .stampButton span.icon {
+	display: none;
+	vertical-align: bottom;
+	font-size: 24px;
+	background-color: red;
+	padding: 4px;
+	color: white;
+	margin-left: -32px;
+	border-radius: 16px;
+}
+#stampTool.editMode .stampButton span.icon {
+	display: inline-block;
+}
+
+.stampSheet {
+	margin-bottom: -104px;
+	min-height: 104px;
+}
+
+#stampTab {
+	margin-top: 104px;
+	height: 48px;
+}
+
+#stampTab > span {
+	display: inline-block;
+	width: 48px;
+	text-align: center;
+}
+
+[id^="stampTabItem"] {
+	max-width: 48px;
+	max-height: 48px;
+	-webkit-filter: grayscale(100%);
+}
+
+[id^="stampTabItem"].active {
+	-webkit-filter: grayscale(0%);
+}
+
+#stampNewSheetBtn {
+	color: green;
+	font-size: 32px;
+	text-shadow: 1px 1px lightgray;
+}
+
+#stampTab > img.active ~ #stampNewSheetBtn {
+	color: gray;
+}
+
+#stampTab > img.active ~ #stampNewSheetBtn:hover {
+	color: green;
+}
+
+#stampSheetEditBtn {
+	color: gray;
+	font-size: 24px;
+	text-shadow: 1px 1px lightgray;
+}
+
+#stampSheetEditBtn:hover,
+.editMode #stampSheetEditBtn {
+	color: darkred;
+}
+
