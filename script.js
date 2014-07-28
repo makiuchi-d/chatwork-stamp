@@ -231,6 +231,7 @@
 	function onStampButton(){
 		if(!edit_mode){
 			postStamp(this);
+			toggleStampMode();
 		}
 		else{
 			removeStamp(this);

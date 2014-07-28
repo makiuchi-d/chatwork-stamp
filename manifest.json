@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "ChatWork Stamp",
-  "version": "0.1",
+  "version": "0.2",
   "description": "ChatWorkにスタンプを追加するよ",
   "icons": {
     "128": "icon_128.png"
