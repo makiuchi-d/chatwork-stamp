@@ -5,8 +5,8 @@
 
 #stampTool .stampButton img { 
 	margin: 2px !important;
-	max-width: 150px;
-	max-height: 100px;
+	max-width: 120px;
+	max-height: 80px;
 }
 
 #stampTool .stampButton span.icon {
@@ -19,6 +19,7 @@
 	margin-left: -32px;
 	border-radius: 16px;
 }
+
 #stampTool.editMode .stampButton span.icon {
 	display: inline-block;
 }
