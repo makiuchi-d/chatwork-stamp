@@ -8,7 +8,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://kcw.kddi.ne.jp/*"],
+      "matches": ["https://kcw.kddi.ne.jp/*", "https://www.chatwork.com/*"],
       "js": ["extension.js"],
       "run_at": "document_end"
     }

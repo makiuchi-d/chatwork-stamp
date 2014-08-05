@@ -32,7 +32,7 @@
 	 * 表示するファイルのURL.
 	 */
 	function stampImgUrl(file_id){
-		return 'https://kcw.kddi.ne.jp/gateway.php?cmd=preview_file&bin=1&file_id=' + file_id;
+		return '/gateway.php?cmd=preview_file&bin=1&file_id=' + file_id;
 	}
 
 	/**
