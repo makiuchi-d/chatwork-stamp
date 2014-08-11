@@ -1,7 +1,7 @@
 (function(){
 
 	var stamp_mode;
-	var edit_mode;
+	var delete_mode;
 	var current_sheet;
 	var file_ids_list;
 
@@ -10,11 +10,12 @@
 	 */
 	function setup(){
 		stamp_mode = false;
-		edit_mode = false;
+		delete_mode = false;
 
 		insertStampModeButton();
 		insertStampTool();
 		insertStampTab();
+		insertStampMenuPopup();
 
 		file_ids_list = loadFileIdList();
 		current_sheet = -1;
@@ -108,21 +109,87 @@
 			switchStampSheet(-1);
 		}
 
-		var edit = document.createElement('span');
-		edit.setAttribute('id','stampSheetEditBtn');
-		edit.setAttribute('role','button');
-		edit.setAttribute('class','_showDescription icoFontSetting');
-		edit.setAttribute('aria-label','シート編集');
-		edit.onclick = toggleEditMode;
+		var menu = document.createElement('span');
+		menu.setAttribute('id','stampSheetMenuBtn');
+		menu.setAttribute('role','button');
+		menu.setAttribute('class','_showDescription icoFontActionMore');
+		menu.setAttribute('aria-label','シートメニュー');
 
 		var stamp_tab = document.createElement('div');
 		stamp_tab.setAttribute('id','stampTab');
 		stamp_tab.appendChild(btn);
-		stamp_tab.appendChild(edit);
+		stamp_tab.appendChild(menu);
 
 		var stamp_tool = document.getElementById('stampTool');
 		stamp_tool.appendChild(stamp_tab);
 	}
+
+	/**
+	 * シートメニューを追加
+	 */
+	function insertStampMenuPopup(){
+		// import用ファイル選択ダイアログ
+		var ifile = document.createElement('input');
+		ifile.setAttribute('type','file');
+		ifile.setAttribute('id','stampFileImporter');
+		ifile.setAttribute('multiple','multiple');
+		ifile.style.display = 'none';
+		ifile.onchange = importSheet;
+		document.body.appendChild(ifile);
+
+		// export用ダウンロードリンク
+		var efile = document.createElement('a');
+		efile.setAttribute('id','stampFileExporter');
+		efile.setAttribute('target','_blank');
+		efile.style.display = 'none';
+		document.body.appendChild(efile);
+
+		var ul = document.createElement('ul');
+		ul.setAttribute('role','menu');
+		ul.setAttribute('class','_cwDDListBody cwNoWrap ddListBody');
+
+		var li;
+		li = document.createElement('li');
+		li.innerHTML = '<span class="icon icoFontActionDelete"></span> 削除モード';
+		li.setAttribute('role','menuitem');
+		li.setAttribute('class','_cwDDList');
+		li.onclick = toggleDeleteMode;
+		ul.appendChild(li);
+
+		li = document.createElement('li');
+		li.innerHTML = '<span class="icon icoFontContentClose"></span> インポート';
+		li.setAttribute('role','menuitem');
+		li.setAttribute('class','_cwDDList');
+		li.onclick = function(){ ifile.click(); };
+		ul.appendChild(li);
+
+		li = document.createElement('li');
+		li.innerHTML = '<span class="icon icoFontContentOpen"></span> エクスポート';
+		li.setAttribute('role','menuitem');
+		li.setAttribute('class','_cwDDList');
+		li.onclick = exportSheet;
+		ul.appendChild(li);
+
+		var i = document.createElement('input');
+		i.setAttribute('id','stampSheetFileInput')
+		i.setAttribute('type','file');
+		i.style.display = 'none';
+
+		var triangle = document.createElement('div');
+		triangle.setAttribute('class','_cwTTTriangle toolTipTriangle toolTipTriangleWhiteBottom');
+
+		var popup = document.createElement('div');
+		popup.setAttribute('id','stampSheetMenuPopup');
+		popup.setAttribute('class','toolTip toolTipWhite mainContetTooltip')
+		popup.setAttribute('role','tooltip');
+		popup.appendChild(triangle);
+		popup.appendChild(ul);
+		document.body.appendChild(popup);
+
+		triangle.style.left = popup.clientWidth/2 - triangle.offsetWidth/2 - 1 + 'px';
+		popup.style.display = 'none';
+	}
+
 
 	/**
 	 * タブにアイテムを追加.
@@ -229,7 +296,7 @@
 	 *  - 編集時: スタンプをシートから削除
 	 */
 	function onStampButton(){
-		if(!edit_mode){
+		if(!delete_mode){
 			postStamp(this);
 			toggleStampMode();
 		}
@@ -336,23 +403,89 @@
 			stamp_tool.style.display = 'none';
 			chat_text.style.display = '';
 		}
-		if(edit_mode){
-			toggleEditMode();
+		if(delete_mode){
+			toggleDeleteMode();
 		}
 		CW.view.resizeLayout();
 	}
 
 	/**
-	 * 編集モードトグル.
+	 * シートメーニューのトグル.
+	 * 開いている時メニューの外を押したら閉じるようにしている.
 	 */
-	function toggleEditMode(){
-		edit_mode = !edit_mode;
+	window.addEventListener(
+		'click',
+		function(e){
+			var pp = document.getElementById('stampSheetMenuPopup');
+			var src = e.srcElement;
+			if(src.id=='stampSheetMenuBtn' && pp.style.display=='none'){
+				pp.style.display = '';
+				var rect = src.getBoundingClientRect();
+				pp.style.left = (rect.left + rect.right)/2 - (pp.offsetWidth/2)  + "px";
+				rect = src.parentElement.getBoundingClientRect();
+				pp.style.top = rect.top - pp.offsetHeight + "px";
+			}
+			else{
+				pp.style.display = 'none';
+			}
+		},
+		false
+	);
+
+	/**
+	 * 削除モードトグル.
+	 */
+	function toggleDeleteMode(){
+		delete_mode = !delete_mode;
 		var tool = document.getElementById('stampTool');
-		if(edit_mode){
-			tool.setAttribute('class','editMode');
+		if(delete_mode){
+			tool.setAttribute('class','deleteMode');
 		}
 		else{
 			tool.setAttribute('class','');
+		}
+	}
+
+	/**
+	 * シートのエクスポート.
+	 */
+	function exportSheet(){
+		var data = JSON.stringify(file_ids_list[current_sheet]);
+		var blob = new Blob([data],{type:'x-application/json+fileidlist'});
+		window.webkitRequestFileSystem(TEMPORARY,blob.size,function(fs){
+			fs.root.getFile(
+				'stampsheet'+current_sheet+'.json',
+				{create:true,exclusive:false,type:'application/json'},
+				function(file){
+					file.createWriter(function(fw){
+						fw.write(blob);
+						fw.onwriteend = function(e){
+							var a = document.getElementById('stampFileExporter');
+							a.setAttribute('href',file.toURL());
+							a.click();
+						};
+					});
+				});
+		});
+	}
+
+	/**
+	 * シートのインポート
+	 */
+	function importSheet(e){
+		var onload = function(e){
+			var list = JSON.parse(e.target.result);
+			if(Array.isArray(list) && list.length>0){
+				insertStampSheet(file_ids_list.length, list);
+				file_ids_list.push(list);
+				saveFileIdList(file_ids_list);
+			}
+		}
+		var files = e.target.files;
+		for(var i=0;i<files.length;++i){
+			var reader = new FileReader;
+			reader.onload = onload;
+			reader.readAsText(files[i])
 		}
 	}
 
