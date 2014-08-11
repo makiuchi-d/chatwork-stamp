@@ -475,9 +475,11 @@
 	function importSheet(e){
 		var onload = function(e){
 			var list = JSON.parse(e.target.result);
-			insertStampSheet(file_ids_list.length, list);
-			file_ids_list.push(list);
-			saveFileIdList(file_ids_list);
+			if(Array.isArray(list) && list.length>0){
+				insertStampSheet(file_ids_list.length, list);
+				file_ids_list.push(list);
+				saveFileIdList(file_ids_list);
+			}
 		}
 		var files = e.target.files;
 		for(var i=0;i<files.length;++i){
