@@ -20,7 +20,7 @@
 	border-radius: 16px;
 }
 
-#stampTool.editMode .stampButton span.icon {
+#stampTool.deleteMode .stampButton span.icon {
 	display: inline-block;
 }
 
@@ -64,14 +64,13 @@
 	color: green;
 }
 
-#stampSheetEditBtn {
+#stampSheetMenuBtn {
 	color: gray;
 	font-size: 24px;
 	text-shadow: 1px 1px lightgray;
 }
 
-#stampSheetEditBtn:hover,
-.editMode #stampSheetEditBtn {
+#stampSheetMenuBtn:hover {
 	color: darkred;
 }
 
