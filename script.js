@@ -15,7 +15,7 @@
 		insertStampModeButton();
 		insertStampTool();
 		insertStampTab();
-		insertStampSheetMenuPopup();
+		insertStampMenuPopup();
 
 		file_ids_list = loadFileIdList();
 		current_sheet = -1;
@@ -127,7 +127,23 @@
 	/**
 	 * シートメニューを追加
 	 */
-	function insertStampSheetMenuPopup(){
+	function insertStampMenuPopup(){
+		// import用ファイル選択ダイアログ
+		var ifile = document.createElement('input');
+		ifile.setAttribute('type','file');
+		ifile.setAttribute('id','stampFileImporter');
+		ifile.setAttribute('multiple','multiple');
+		ifile.style.display = 'none';
+		ifile.onchange = importSheet;
+		document.body.appendChild(ifile);
+
+		// export用ダウンロードリンク
+		var efile = document.createElement('a');
+		efile.setAttribute('id','stampFileExporter');
+		efile.setAttribute('target','_blank');
+		efile.style.display = 'none';
+		document.body.appendChild(efile);
+
 		var ul = document.createElement('ul');
 		ul.setAttribute('role','menu');
 		ul.setAttribute('class','_cwDDListBody cwNoWrap ddListBody');
@@ -144,7 +160,7 @@
 		li.innerHTML = '<span class="icon icoFontContentClose"></span> インポート';
 		li.setAttribute('role','menuitem');
 		li.setAttribute('class','_cwDDList');
-		li.onclick = importSheet;
+		li.onclick = function(){ ifile.click(); };
 		ul.appendChild(li);
 
 		li = document.createElement('li');
@@ -434,13 +450,41 @@
 	 * シートのエクスポート.
 	 */
 	function exportSheet(){
-		
+		var data = JSON.stringify(file_ids_list[current_sheet]);
+		var blob = new Blob([data],{type:'x-application/json+fileidlist'});
+		window.webkitRequestFileSystem(TEMPORARY,blob.size,function(fs){
+			fs.root.getFile(
+				'stampsheet'+current_sheet+'.json',
+				{create:true,exclusive:false,type:'application/json'},
+				function(file){
+					file.createWriter(function(fw){
+						fw.write(blob);
+						fw.onwriteend = function(e){
+							var a = document.getElementById('stampFileExporter');
+							a.setAttribute('href',file.toURL());
+							a.click();
+						};
+					});
+				});
+		});
 	}
 
 	/**
 	 * シートのインポート
 	 */
-	function importSheet(){
+	function importSheet(e){
+		var onload = function(e){
+			var list = JSON.parse(e.target.result);
+			insertStampSheet(file_ids_list.length, list);
+			file_ids_list.push(list);
+			saveFileIdList(file_ids_list);
+		}
+		var files = e.target.files;
+		for(var i=0;i<files.length;++i){
+			var reader = new FileReader;
+			reader.onload = onload;
+			reader.readAsText(files[i])
+		}
 	}
 
 	/* ---------------------------------------- */
