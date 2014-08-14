@@ -229,6 +229,8 @@
 		sheet.setAttribute('class','stampSheet');
 		sheet.setAttribute('data-stamp-sheet-num',num);
 		sheet.style.display = 'none';
+		sheet.style.maxHeight = '350px';
+		sheet.style.overflow = 'auto';
 
 		for(var i=0;i<file_ids.length;++i){
 			var btn = createStampButtonElement(file_ids[i]);
